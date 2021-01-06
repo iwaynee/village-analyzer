@@ -18,6 +18,43 @@ const villageSchema = new Schema({
 });
 
 
+exports.insert = (id, time, type) => {
+    const db = mongoose.model('de178', villageSchema);
+
+    // Check if there is already an entry for the village
+    
+
+    return new Village(villageData).save();
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+update_type
+update_buildings
+getInfobyId
+getTypeById
+removeInfoById
+
+
+
+
+
+
+
+
+
+
 
 
 
