@@ -24,3 +24,4 @@ const connectWithRetry = () => {
 connectWithRetry();
 
 exports.mongoose = mongoose;
+mongoose.set('useFindAndModify', false);

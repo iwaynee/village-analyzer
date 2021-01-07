@@ -1,5 +1,3 @@
-//const UsersController = require('./controllers/users.controller');
-
 const DataController = require('./controllers/data.controller');
 
 
@@ -12,7 +10,7 @@ exports.routesConfig = function (app) {
             "timestamp": 1609935139,
             
             "attacker_village": 1,
-            "defender_village": 1
+            "defender_village": 2,
             
             "troops": {
                 "attack_troops": [
@@ -43,7 +41,7 @@ exports.routesConfig = function (app) {
     ]);
 
     app.get('/village_info/:villageId', [
-        DataController.getInfobyId
+        DataController.getInfoById
     ]);
 
     app.get('/village_type/:villageId', [
