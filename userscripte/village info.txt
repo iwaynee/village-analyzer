@@ -1,0 +1,49 @@
+// ==UserScript==
+// @name        DS-Berichte Scanner (Village Info)
+// @namespace   http://support-nur-im-forum.at/
+// @description DS-Berichte Scanner
+// @author      kekw
+// @version     1.0
+// @include     https://de*.die-staemme.de/game.php?village=*&screen=info_village&id=*
+// ==/UserScript==
+
+var $ = typeof unsafeWindow != 'undefined' ? unsafeWindow.$ : window.$;
+
+function getId(name, url = window.location.href) {
+	name = name.replace("/[[]]/g", '\$&');
+	var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'), results = regex.exec(url);
+	if (!results) return null;
+	if (!results[2]) return '';
+		
+  return decodeURIComponent(results[2].replace("/+/g", ' '));
+}
+
+async function getData(url = '', data = {}) {
+    const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+    return response.json();
+}
+
+
+var doc = document.querySelectorAll("#content_value .vis")[2];
+
+var c = document.createElement('p');
+c.setAttribute("style", "color:red; font-size: 20px; font-weight: 700");
+doc.prepend(c);
+
+
+var id = getId("id");
+
+var test = getData("http://46.101.174.242:3600/village_info/" + id).then((res) => {
+	//var test = getData("http://localhost:3600/village_info/" + id).then((res) => {  
+  var text = "?";
+  
+  if ("village_type" in res["response"]) {
+    text = res["response"]["village_type"];
+  }
+  c.textContent = text;
+});

@@ -1,0 +1,237 @@
+// ==UserScript==
+// @name        DS-Village Inc Info & MAP
+// @namespace   Test
+// @description DS-Village Inc Info & MAP
+// @author      kekw
+// @version     1.0
+// @include     https://de178.die-staemme.de/game.php?village=*&screen=overview_villages&mode=incomings*subtype=attacks
+// @require     https://raw.githubusercontent.com/pa7/heatmap.js/master/build/heatmap.min.js
+// ==/UserScript==
+
+
+
+
+var win = typeof unsafeWindow != 'undefined' ? unsafeWindow : window;
+var api = typeof unsafeWindow != 'undefined' ? unsafeWindow.ScriptAPI : window.ScriptAPI;
+
+var $ = typeof unsafeWindow != 'undefined' ? unsafeWindow.$ : window.$;
+var game_data = typeof unsafeWindow != 'undefined' ? unsafeWindow.game_data : window.game_data;
+
+
+// PSEUDO PART
+
+class InformationHolder {
+    constructor(attackType, target, targetId, source, sourceId, incoming_date, targetPlayer, attackingPlayer, containsNoble) {
+        this.attackType = attackType;
+        this.target = target;
+      	this.targetId = targetId;
+        this.source = source;
+      	this.sourceId = sourceId;
+        this.incoming_date = incoming_date;
+        this.targetPlayer = targetPlayer;
+        this.attackingPlayer = attackingPlayer;
+        this.containsNoble = containsNoble;
+    }
+}
+
+
+let rows = [...document.querySelectorAll("#incomings_table tbody tr")].splice(1, [...document.querySelectorAll("#incomings_table tbody tr")].length - 2); 
+
+rows = rows.map(row => {
+    const nobleIcon = row.querySelector("td span[data-icon-hint='EnthÃ¤lt Adelsgeschlecht']");
+    let containsNoble = false;
+    if(nobleIcon !== undefined && nobleIcon !== null) {
+        containsNoble = true;
+    }
+
+    return new InformationHolder(row.querySelector("img").src, 
+                                 row.querySelectorAll("td a")[2].innerHTML, 
+                                 row.querySelectorAll("td a")[2].href.split('=')[1].split('&')[0],
+                                 row.querySelectorAll("td a")[3].innerHTML,
+                                 row.querySelectorAll("td a")[3].href.split("=").slice(-1)[0],
+                                 row.querySelectorAll("td")[5].innerText, 
+                                 game_data.player.name, 
+                                 row.querySelectorAll("td a")[4].innerText, 
+                                 containsNoble);
+});
+
+
+
+var ids = [];
+for (i in rows) {
+  ids.push( rows[i].sourceId);
+}
+
+         
+
+async function requestData(url = '', data = {}) {
+    const response = await fetch(url, {
+        method: 'POST',
+        mode: 'cors',
+        cache: 'no-cache',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        redirect: 'follow',
+        body: JSON.stringify(data)
+    });
+    return response.json();
+}
+
+
+function getId(name, url = window.location.href) {
+	var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'), results = regex.exec(url);
+	
+  if (!results) return null;
+	if (!results[2]) return '';
+		
+  return decodeURIComponent(results[2].replace("/+/g", ' '));
+}
+
+function getCoordinate(text) {
+	var regex = new RegExp('.*[(](.*[|].*)[)].*');
+  var results = regex.exec(text);
+  
+  if (!results) return null;
+	if (!results[1]) return '';
+
+ 	return results[1];
+}
+
+
+
+
+function filterOffs(data = {}) {
+	offs = [];
+  
+  data.forEach( element => {
+    
+    console.log(element.attackType);
+    
+  	if (element.attackType.includes("attack_large.png")) {
+    	offs.push(element);
+    }
+  });
+  
+  return offs;
+}
+
+
+
+function updateRows(data = {}) {
+  
+  requestData("http://46.101.174.242:3600/village_types", {"villageIds": ids}).then((res) => {
+  	
+    console.log(res);
+
+  	rows = [...document.querySelectorAll("#incomings_table tbody tr")].splice(1, [...document.querySelectorAll("#incomings_table tbody tr")].length - 2);
+	
+    rows.forEach( element => {
+      village = element.querySelectorAll("td a")[3]
+      cooridnate = getCoordinate(village.innerText);
+      id = getId("id", village.href);
+      
+      var text = "";
+      if (res["response"][id]) {
+        text = res["response"][id];
+      }
+     	console.log(data);
+
+      for (i in data) {
+        if (data[i].source == cooridnate) {
+        	text = text + " & unterwegs!";
+      	}
+        break;
+      }  
+
+      village.innerHTML = village.innerHTML + " <span style='color:red'>" + text + "</span>";
+    });
+	});
+}
+
+
+function createHeatmap(data) {
+	// Add heatmap
+  var script = document.createElement('div');
+  var content = "<div style='padding:20px; margin: 0 auto; width: 100%;'><h3>HEATMAP</h3><div class='heatmap' style='width: 1000px; height: 1000px;'><img style='height:1000px; width:1000px;' src='https://de178.die-staemme.de/page.php?page=worldmap_image&cut=true&barbarian=true&ally=true&partner=true&nap=true&enemy=true'></div></div>";
+  
+  script.innerHTML = content
+  
+  window.document.body.appendChild(script); // run the script
+  
+  
+	// minimal heatmap instance configuration
+  var heatmapInstance = h337.create({
+    // only container is required, the rest will be defaults
+    container: document.querySelector('.heatmap')
+  });
+	
+
+  // now generate some random data
+  var points = [];
+  var max = 0;
+  var width = 1000;
+  var height = 1000;
+  
+  data.forEach( inc => {
+    coordinate = inc.target.split('|');
+    
+    var point = {
+      x: (coordinate[0] - 300) /400 * 1000,
+      y: (coordinate[1] - 300) /400 * 1000,
+      value: 1,
+      radius: 5
+    };
+    
+    points.push(point);
+    
+  });
+
+
+  
+  // heatmap data format
+  var data = {
+    max: max,
+    data: points
+  };
+  // if you have a set of datapoints always use setData instead of addData
+  // for data initialization
+  heatmapInstance.setData(data);
+
+}
+
+
+
+
+
+
+
+requestData("https://ds.kloud.software/data", rows).then(res => {
+  
+  console.log(res);
+  
+  
+ 	offs = filterOffs(res);
+  updateRows(offs);
+
+
+	createHeatmap(res);
+
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
