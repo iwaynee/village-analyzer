@@ -154,13 +154,13 @@ exports.newReport = (req, res) => {
                 defender_type= "OFF SKAV " + formatDate(d);
             }
 
-            if (req.body["troops"]["outside_troops"][1] > 2000) {
-                defender_type= "DEFF SD " + formatDate(d);
-            }
-            
             if (req.body["troops"]["outside_troops"][0] > 2500 &&
                 req.body["troops"]["outside_troops"][5] > 400) {
                 defender_type= "Flexdeff " + formatDate(d);
+            }
+
+            if (req.body["troops"]["outside_troops"][1] > 2000) {
+                defender_type= "DEFF SD " + formatDate(d);
             }
 
         }
