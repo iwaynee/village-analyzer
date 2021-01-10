@@ -163,6 +163,27 @@ exports.newReport = (req, res) => {
                 defender_type= "DEFF SD " + formatDate(d);
             }
 
+            if (req.body["troops"]["outside_troops"][0] == 0 && 
+                req.body["troops"]["outside_troops"][1] == 0 && 
+                req.body["troops"]["outside_troops"][2] == 0 && 
+                req.body["troops"]["outside_troops"][3] == 0 && 
+                req.body["troops"]["outside_troops"][4] == 0 && 
+                req.body["troops"]["outside_troops"][5] == 0 && 
+                req.body["troops"]["outside_troops"][6] == 0 && 
+                req.body["troops"]["outside_troops"][7] == 0 && 
+                req.body["troops"]["outside_troops"][8] == 0 && 
+                req.body["troops"]["defending_troops"][0] - req.body["troops"]["defending_troops_dead"][0] == 0 && 
+                req.body["troops"]["defending_troops"][1] - req.body["troops"]["defending_troops_dead"][1] == 0 &&
+                req.body["troops"]["defending_troops"][2] - req.body["troops"]["defending_troops_dead"][2] == 0 &&
+                req.body["troops"]["defending_troops"][3] - req.body["troops"]["defending_troops_dead"][3] == 0 &&
+                req.body["troops"]["defending_troops"][4] - req.body["troops"]["defending_troops_dead"][4] == 0 &&
+                req.body["troops"]["defending_troops"][5] - req.body["troops"]["defending_troops_dead"][5] == 0 &&
+                req.body["troops"]["defending_troops"][6] - req.body["troops"]["defending_troops_dead"][6] == 0 && 
+                req.body["troops"]["defending_troops"][7] - req.body["troops"]["defending_troops_dead"][7] == 0 &&
+                req.body["troops"]["defending_troops"][8] - req.body["troops"]["defending_troops_dead"][8] == 0
+            ) {
+                defender_type= "LEER " + formatDate(d);
+            }
         }
 
         if (defender_type != false){
