@@ -103,37 +103,6 @@ exports.newReport = (req, res) => {
         // Defender
         var defender_type = false;
 
-        if ("building_lvl" in req.body){
-            defending_data.push({ 
-                building_timestamp: d, 
-                building_level: req.body["building_lvl"]});
-
-            /*
-            buildings = {
-                "main": 0,
-                "barracks": 0,
-                "stable": 0,
-                "garage": 0,
-                "watchtower": 0,
-                "snob": 0,
-                "smith": 0,
-                "place": 0,
-                "market": 0,
-                "wood": 0,
-                "stone": 0,
-                "iron": 0,
-                "farm": 0,
-                "storage": 0,
-                "hide": 0,
-                "wall": 0,
-            };
-            */
-
-            if (req.body["building_lvl"].watchtower > 10) {
-                defender_type = "WT" + req.body["building_lvl"].watchtower;
-            }
-        }
-
         if ("outside_troops" in req.body["troops"]) {
             if (req.body["troops"]["outside_troops"][3] > 5000) {
                 defender_type = "Only Spy " + formatDate(d);
@@ -185,6 +154,39 @@ exports.newReport = (req, res) => {
                 defender_type= "LEER " + formatDate(d);
             }
         }
+
+
+        if ("building_lvl" in req.body){
+            defending_data.push({ 
+                building_timestamp: d, 
+                building_level: req.body["building_lvl"]});
+
+            /*
+            buildings = {
+                "main": 0,
+                "barracks": 0,
+                "stable": 0,
+                "garage": 0,
+                "watchtower": 0,
+                "snob": 0,
+                "smith": 0,
+                "place": 0,
+                "market": 0,
+                "wood": 0,
+                "stone": 0,
+                "iron": 0,
+                "farm": 0,
+                "storage": 0,
+                "hide": 0,
+                "wall": 0,
+            };
+            */
+
+            if (req.body["building_lvl"].watchtower > 10) {
+                defender_type = "WT" + req.body["building_lvl"].watchtower;
+            }
+        }
+
 
         if (defender_type != false){
             defending_data.push({ 
