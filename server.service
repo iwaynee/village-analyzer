@@ -1,0 +1,10 @@
+[Unit]
+Description=Village Analyzer Service
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+Type=simple
+ExecStart=node ./server/index.js
+Restart=always
