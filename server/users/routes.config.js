@@ -44,8 +44,8 @@ exports.routesConfig = function (app) {
         DataController.getInfoById
     ]);
 
-    app.get('/village_type/:villageId', [
-        DataController.getTypeById
+    app.post('/village_types', [
+        DataController.getTypeByIds
     ]);
 
     app.delete('/village_info/:villageId', [

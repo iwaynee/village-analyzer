@@ -193,19 +193,25 @@ exports.getInfoById = (req, res) => {
     });
 };
 
-exports.getTypeById = (req, res) => {
-    DataModel.findById(req.params.villageId)
-    .then((result) => {
-        if (result) {
-            if (result.village_type) {
-                res.status(200).send({response: result.village_type });
-            } else {
-                res.status(200).send({})    
+exports.getTypeByIds = (req, res) => {
+
+    if (req.body["villageIds"]) {
+
+        DataModel.findManyById(req.body["villageIds"])
+        .then((result) => {
+            var resp = {};
+
+            for (i in result) {
+                if (result[i]["village_type"]){
+                    resp[result[i].villageId] = result[i].village_type;
+                }
             }
-        } else {
-            res.status(200).send({});
-        }
-    });
+
+            res.status(200).send({response: resp });  
+        });
+    } else {
+        res.status(204).send({})
+    }    
 };
 
 exports.removeInfoById = (req, res) => {

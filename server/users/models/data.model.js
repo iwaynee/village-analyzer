@@ -102,6 +102,15 @@ exports.findById = (id) => {
         });
 };
 
+exports.findManyById = (ids) => {
+    const model = mongoose.model('de178', villageSchema);
+
+    return model.find({villageId: { "$in" : ids}})
+        .then((result) => {
+            return result;
+        });
+}
+
 /*
 exports.getTypeById = (id, time, type) => {
     return this.insert(id, time, type);
