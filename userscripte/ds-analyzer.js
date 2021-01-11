@@ -102,10 +102,10 @@ function script_villageInfo(){
 
     var id = getId('id');
 
-    console.log(id);
-
     createRequest("GET", host + "/village_info/" + id).then((res) => {
         
+        var text = "?";
+
         // Set Title
         if ("village_type" in res["response"]) {
             text = res["response"]["village_type"];
