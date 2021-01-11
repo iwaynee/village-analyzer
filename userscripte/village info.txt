@@ -29,21 +29,44 @@ async function getData(url = '', data = {}) {
 }
 
 
-var doc = document.querySelectorAll("#content_value .vis")[2];
-
+var doc1 = document.querySelectorAll("#content_value .vis")[2];
 var c = document.createElement('p');
 c.setAttribute("style", "color:red; font-size: 20px; font-weight: 700");
-doc.prepend(c);
+doc1.prepend(c);
 
+
+
+var doc2 = document.querySelectorAll("#content_value .vis")[2];
+var d = document.createElement('p');
+doc2.append(d);
 
 var id = getId("id");
 
 var test = getData("http://46.101.174.242:3600/village_info/" + id).then((res) => {
-	//var test = getData("http://localhost:3600/village_info/" + id).then((res) => {  
+//var test = getData("http://localhost:3600/village_info/" + id).then((res) => {  
   var text = "?";
   
   if ("village_type" in res["response"]) {
     text = res["response"]["village_type"];
   }
   c.textContent = text;
+  
+  if ("building_level" in res["response"]) {
+    t = new Date(res["response"]["building_timestamp"]);
+    d.innerHTML  = '<table class="vis" style="margin-top:10px;" width="100%"><tbody>' +
+    								'<tr><th>Gebäude:</th><th>'+ t.getDate() + '.' + (t.getMonth() + 1) + '.' + t.getFullYear()  +'</th></tr>'+
+      							'<tr><td style="vertical-align:middle;" nowrap=""><img src="https://dsde.innogamescdn.com/asset/6052b745/graphic/buildings/main.png" style="max-height:16px;" alt="" class="middle"> <span class="middle">Hauptgebäude</span></td><td class="middle">'+ res["response"]["building_level"]["main"] +'</td></tr>' +
+      							'<tr><td style="vertical-align:middle;" nowrap=""><img src="https://dsde.innogamescdn.com/asset/6052b745/graphic/buildings/smith.png" style="max-height:16px;" alt="" class="middle"> <span class="middle">Schmiede</span></td><td class="middle">'+ res["response"]["building_level"]["smith"] +'</td></tr>' +
+      							'<tr><td style="vertical-align:middle;" nowrap=""><img src="https://dsde.innogamescdn.com/asset/6052b745/graphic/buildings/farm.png" style="max-height:16px;" alt="" class="middle"> <span class="middle">Bauernhof</span></td><td class="middle">'+ res["response"]["building_level"]["farm"] +'</td></tr>' +
+      							'<tr><td style="vertical-align:middle;" nowrap=""><img src="https://dsde.innogamescdn.com/asset/6052b745/graphic/buildings/storage.png" style="max-height:16px;" alt="" class="middle"> <span class="middle">Speicher</span></td><td class="middle">'+ res["response"]["building_level"]["storage"] +'</td></tr>' +
+            				'<tr><td style="vertical-align:middle;" nowrap=""><img src="https://dsde.innogamescdn.com/asset/6052b745/graphic/buildings/wall.png" style="max-height:16px;" alt="" class="middle"> <span class="middle">Wall</span></td><td class="middle">'+ res["response"]["building_level"]["wall"] +'</td></tr>' +
+      
+      							
+      							'</tbody></table>';
+    
+
+                      
+
+    
+  }
 });

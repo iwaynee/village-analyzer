@@ -168,7 +168,7 @@ if ( document.querySelectorAll("#attack_info_att").length > 0 ) {
     for (i = 1; i < left.length; i++) {
       var building = left[i].children[0].children[1].innerText;
       var lvl = left[i].children[1].innerText;
-
+			
 
       if (building == "Hauptgebäude") {
         buildings["main"] = lvl;  
@@ -221,12 +221,10 @@ if ( document.querySelectorAll("#attack_info_att").length > 0 ) {
     }
 
     for (i = 1; i < right.length; i++) {
-
-      if (right[i].children.lenght > 0){
-
+			
+      if (right[i].children[0].children[1]) {
         var building = right[i].children[0].children[1].innerText;
         var lvl = right[i].children[1].innerText;
-
 
         if (building == "Hauptgebäude") {
           buildings["main"] = lvl;  
