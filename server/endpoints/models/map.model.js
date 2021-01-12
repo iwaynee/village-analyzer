@@ -130,7 +130,7 @@ exports.getMap = (mode) => {
                     }
 
                 // Large
-                } else if (mode == "lager") {
+                } else if (mode == "large") {
                     if (inc.attackType.includes("large")) {
                         incsFiltered.push(inc);
                         intensity = 5;
