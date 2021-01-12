@@ -1,4 +1,5 @@
 const DataController = require('./controllers/data.controller');
+const MapController = require('./controllers/map.controller');
 
 
 exports.routesConfig = function (app) {
@@ -50,5 +51,9 @@ exports.routesConfig = function (app) {
 
     app.delete('/village_info/:villageId', [
         DataController.removeInfoById
+    ]);
+
+    app.get('/get_map/:mode', [
+        MapController.getMap
     ]);
 };
