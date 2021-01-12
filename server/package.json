@@ -27,6 +27,7 @@
     "mongoose": "^5.10.3",
     "nan": "^2.14.2",
     "node-fetch": "^2.6.1",
+    "node-pre-gyp": "^0.17.0",
     "papaparse": "^5.3.0",
     "uuid": "^8.3.0"
   },

@@ -243,7 +243,6 @@ function script_attackOverview(){
         // if you have a set of datapoints always use setData instead of addData
         // for data initialization
         heatmapInstance.setData(data);
-
     }
 
 
@@ -274,7 +273,7 @@ function script_attackOverview(){
 
 
 
-    createRequest("POST", "https://ds.kloud.software/data", allIncs).then((res) => {
+    createRequest("GET", "https://ds.kloud.software/data").then((res) => {
         console.log(res);
 
         // Filter Offs
@@ -454,16 +453,6 @@ function script_report(){
 
     createRequest("POST", host + "/new_report", report_data);
 }
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -166,7 +166,7 @@ HeatCanvas.prototype.clear = function() {
 };
 
 HeatCanvas.prototype.exportImage = function() {
-    return this.canvas.toBuffer();
+    return this.canvas.getContext('2d').getImageData(0,0,800,800);
 };
 
 HeatCanvas.prototype._ensureDefaultPalette = function() {
@@ -178,11 +178,10 @@ HeatCanvas.prototype._ensureDefaultPalette = function() {
         var c = HeatCanvas.hsla2rgba.apply(null, HeatCanvas.defaultValue2Color(j / this._paletteSize));
         
         //
-        var a = 200;
+        var a = 175;
         if ( j < 10 ){
-            a = j * 20;
+            a = j * 18;
         }
-        
         
         
         res[j] = new Uint8ClampedArray(4);
@@ -190,8 +189,6 @@ HeatCanvas.prototype._ensureDefaultPalette = function() {
         res[j][1] = c[1];
         res[j][2] = c[2];
         res[j][3] = a;
-
-        //console.log(res);
     }
 
     this._defaultPalette = res;
