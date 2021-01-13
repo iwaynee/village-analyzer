@@ -54,7 +54,50 @@ function compileMap() {
     // Create Context
     const canvas_map = createCanvas(1200, 1200);
     const ctx = canvas_map.getContext('2d');
-    
+
+    // Create Background
+    ctx.fillStyle = "#164c0a";
+    ctx.fillRect(0,0, 1200, 1200);
+
+    ctx.strokeStyle = "#000000";
+    ctx.lineWidth = 3;
+
+    // Creat Kontinents
+    for(var y = 0; y < 3; y++) {
+        ctx.beginPath();
+        ctx.moveTo(0, 200 + (400 * y));
+        ctx.lineTo(1200, 200 + (400 * y));
+        ctx.stroke(); 
+    }
+
+    for(var x = 0; x < 3; x++) { 
+        ctx.beginPath();
+        ctx.moveTo(200 + (400 * x), 0);
+        ctx.lineTo(200 + (400 * x), 1200);
+        ctx.stroke(); 
+    }
+
+    ctx.strokeStyle = "#000000";
+    ctx.lineWidth = 0.5;
+
+    // Creat Kontinents
+    for(var y = 0; y < 80; y++) {
+        ctx.beginPath();
+        ctx.moveTo(0, 20 +(20 * y));
+        ctx.lineTo(1200, 20 + (20 * y));
+        ctx.stroke(); 
+    }
+
+    for(var x = 0; x < 80; x++) { 
+        ctx.beginPath();
+        ctx.moveTo(20 + (20 * x), 0);
+        ctx.lineTo(20 + (20 * x), 1200);
+        ctx.stroke(); 
+    }
+
+
+
+
     var p = new Promise(resolve => {
 
         // Read players
@@ -80,10 +123,6 @@ function compileMap() {
             });
         });
         stream1.once('close', function () {
-            
-            // Create Background
-            ctx.fillStyle = "#004d00";
-            ctx.fillRect(0,0, 1200, 1200);
         
             // Read Villages
             ctx.fillStyle ="red";
@@ -100,10 +139,10 @@ function compileMap() {
 
 
                             if ( allyPlayer.includes(id)  ) {     
-                                ctx.fillStyle ="#2e9eff";
+                                ctx.fillStyle = "rgba(46, 158, 255, 0.7)";
 
                             } else if ( enemyPlayer.includes(id)  ) {
-                                ctx.fillStyle ="red";
+                                ctx.fillStyle ="rgba(255, 0, 0, 0.7)";
 
                             } else {
                                 ctx.fillStyle ="#8a5500";
@@ -113,7 +152,7 @@ function compileMap() {
                         });
                         
                         // Overlay
-                        ctx.fillStyle = "rgba(255, 255, 255, 0.25)";
+                        ctx.fillStyle = "rgba(255, 255, 255, 0.10)";
                         ctx.fillRect(0,0, 1200, 1200);
 
                         // Return Map

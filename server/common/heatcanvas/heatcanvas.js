@@ -178,9 +178,9 @@ HeatCanvas.prototype._ensureDefaultPalette = function() {
         var c = HeatCanvas.hsla2rgba.apply(null, HeatCanvas.defaultValue2Color(j / this._paletteSize));
         
         //
-        var a = 175;
+        var a = 200;
         if ( j < 10 ){
-            a = j * 18;
+            a = j * 20;
         }
         
         
