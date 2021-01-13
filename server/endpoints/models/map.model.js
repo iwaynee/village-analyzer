@@ -52,12 +52,12 @@ function compileMap() {
     var enemyPlayer = [];
 
     // Create Context
-    const canvas_map = createCanvas(1200, 1200);
+    const canvas_map = createCanvas(2000, 2000);
     const ctx = canvas_map.getContext('2d');
 
     // Create Background
     ctx.fillStyle = "#164c0a";
-    ctx.fillRect(0,0, 1200, 1200);
+    ctx.fillRect(0,0, 2000, 2000);
 
     ctx.strokeStyle = "#000000";
     ctx.lineWidth = 3;
@@ -65,15 +65,15 @@ function compileMap() {
     // Creat Kontinents
     for(var y = 0; y < 3; y++) {
         ctx.beginPath();
-        ctx.moveTo(0, 200 + (400 * y));
-        ctx.lineTo(1200, 200 + (400 * y));
+        ctx.moveTo(0, 500 + (500 * y));
+        ctx.lineTo(2000, 500 + (500 * y));
         ctx.stroke(); 
     }
 
     for(var x = 0; x < 3; x++) { 
         ctx.beginPath();
-        ctx.moveTo(200 + (400 * x), 0);
-        ctx.lineTo(200 + (400 * x), 1200);
+        ctx.moveTo(500 + (500 * x), 0);
+        ctx.lineTo(500 + (500 * x), 2000);
         ctx.stroke(); 
     }
 
@@ -83,15 +83,15 @@ function compileMap() {
     // Creat Kontinents
     for(var y = 0; y < 80; y++) {
         ctx.beginPath();
-        ctx.moveTo(0, 20 +(20 * y));
-        ctx.lineTo(1200, 20 + (20 * y));
+        ctx.moveTo(0, 25 +(25 * y));
+        ctx.lineTo(2000, 25 + (25 * y));
         ctx.stroke(); 
     }
 
     for(var x = 0; x < 80; x++) { 
         ctx.beginPath();
-        ctx.moveTo(20 + (20 * x), 0);
-        ctx.lineTo(20 + (20 * x), 1200);
+        ctx.moveTo(25 + (25 * x), 0);
+        ctx.lineTo(25 + (25 * x), 2000);
         ctx.stroke(); 
     }
 
@@ -133,8 +133,8 @@ function compileMap() {
                         data = results.data;
                         
                         data.forEach( village => {
-                            var x = Math.round((village[2] - 300) * 3);
-                            var y = Math.round((village[3] - 300) * 3);
+                            var x = Math.round((village[2] - 300) * 5);
+                            var y = Math.round((village[3] - 300) * 5);
                             var id = village[4];
 
 
@@ -147,16 +147,16 @@ function compileMap() {
                             } else {
                                 ctx.fillStyle ="#8a5500";
                             }
-                            ctx.fillRect(x,y, 3, 3);   
+                            ctx.fillRect(x,y, 5, 5);   
                             
                         });
                         
                         // Overlay
                         ctx.fillStyle = "rgba(255, 255, 255, 0.10)";
-                        ctx.fillRect(0,0, 1200, 1200);
+                        ctx.fillRect(0,0, 2000, 2000);
 
                         // Return Map
-                        resolve(ctx.getImageData(0, 0, 1200, 1200));
+                        resolve(ctx.getImageData(0, 0, 2000, 2000));
                     }
                 });
             });
@@ -178,28 +178,28 @@ exports.getMap = (mode) => {
             
             // Filter Incs
             var incsFiltered = [];
-            var intensity = 1;
+            var intensity = 1.5;
             res.forEach( inc => {
 
                 // Noble
                 if (mode == "noble"){
                     if (inc.containsNoble) {
                         incsFiltered.push(inc);
-                        intensity=10;
+                        intensity=8;
                     }
 
                 // Large
                 } else if (mode == "large") {
                     if (inc.attackType.includes("large")) {
                         incsFiltered.push(inc);
-                        intensity = 5;
+                        intensity = 4;
                     }
                 
                 // mediumToLarge
                 } else if (mode == "mediumToLarge"){
                     if (inc.attackType.includes("large") || inc.attackType.includes("medium")) {
                         incsFiltered.push(inc);
-                        intensity = 5;
+                        intensity = 4;
                     }
 
                 // Small
@@ -218,7 +218,7 @@ exports.getMap = (mode) => {
             compileMap().then(map => {
 
                 // Generate Heatmap
-                const canvas_heat = createCanvas(1200, 1200);
+                const canvas_heat = createCanvas(2000, 2000);
                 var heatmap = new HeatCanvas(canvas_heat);
 
                 // Get Heatpoints
@@ -226,8 +226,8 @@ exports.getMap = (mode) => {
                     coordinate = inc.target.split('|');
                     
                     heatmap.push(   
-                        Math.round((coordinate[0] - 300) * 3 +1),
-                        Math.round((coordinate[1] - 300) * 3 +1),
+                        Math.round((coordinate[0] - 300) * 5 +2),
+                        Math.round((coordinate[1] - 300) * 5 +2),
                         intensity)
                 });
 
@@ -235,7 +235,7 @@ exports.getMap = (mode) => {
                 heatmap.onRenderingEnd = function() {
                     var heat = heatmap.exportImage();
 
-                    const c = createCanvas(1200, 1200);
+                    const c = createCanvas(2000, 2000);
                     const x = c.getContext('2d');
 
                     x.putImageData(map, 0,0);
