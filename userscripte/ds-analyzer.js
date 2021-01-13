@@ -463,8 +463,6 @@ var param_subtype = getId("subtype");
 var param_village = getId("village");
 var param_view = getId("view");
 
-//console.log(param_screen + " "+ param_mode + " " + param_subtype);
-
 
 if (param_screen == "report" &&
     param_view != null) {

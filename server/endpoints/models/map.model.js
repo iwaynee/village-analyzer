@@ -36,9 +36,20 @@ function compileMap() {
         '643', //ALARM
         '152', //RALU
         '882', //PURA
+        '2010', // HAMMER
+        '31' // TWIX
     ];
 
-    var playerList = [];
+    var enemy = [
+        '4', //TSP
+        '733', //CODE
+        '617', //BB
+        '1836' // MM
+    ];
+
+    
+    var allyPlayer = [];
+    var enemyPlayer = [];
 
     // Create Context
     const canvas_map = createCanvas(1200, 1200);
@@ -54,13 +65,17 @@ function compileMap() {
                     data = results.data;
                     
                     data.forEach( player => {
-                        var ally = player[2];
-                        var id = player[0];
+                        
+                        var allyId = player[2];
+                        var playerId = player[0];
+                        
+                        if ( allys.includes(allyId) ){
+                            allyPlayer.push(playerId);
 
-                        if (allys.includes(ally)){
-                            playerList.push(id);
-                        }                        
-                    })
+                        } else if (enemy.includes(allyId)){
+                            enemyPlayer.push(playerId);
+                        }
+                    });
                 }
             });
         });
@@ -83,14 +98,19 @@ function compileMap() {
                             var y = Math.round((village[3] - 300) * 3);
                             var id = village[4];
 
-                            if ( playerList.includes(id)  ) {     
+
+                            if ( allyPlayer.includes(id)  ) {     
                                 ctx.fillStyle ="#2e9eff";
-                            } else {
+
+                            } else if ( enemyPlayer.includes(id)  ) {
                                 ctx.fillStyle ="red";
+
+                            } else {
+                                ctx.fillStyle ="#8a5500";
                             }
                             ctx.fillRect(x,y, 3, 3);   
                             
-                        })
+                        });
                         
                         // Overlay
                         ctx.fillStyle = "rgba(255, 255, 255, 0.25)";
@@ -122,8 +142,8 @@ exports.getMap = (mode) => {
             var intensity = 1;
             res.forEach( inc => {
 
-                // Nobel
-                if (mode == "nobel"){
+                // Noble
+                if (mode == "noble"){
                     if (inc.containsNoble) {
                         incsFiltered.push(inc);
                         intensity=10;
@@ -143,8 +163,8 @@ exports.getMap = (mode) => {
                         intensity = 5;
                     }
 
-                // Fakes
-                } else if (mode == "fakes"){
+                // Small
+                } else if (mode == "small"){
                     if (inc.attackType.includes("small")) {
                         incsFiltered.push(inc);
                     }
