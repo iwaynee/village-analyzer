@@ -30,6 +30,7 @@ exports.getHeatmap = (req, res) => {
 
     })
     .catch(err => {
+        console.error(err);
         res.status(503).send({"err": err});
     });
 };
@@ -50,6 +51,7 @@ exports.getCustomMap = (req, res) => {
         }
     })
     .catch(err => {
+        console.error(err);
         res.status(503).send({"err": err});
     });
 };
@@ -69,6 +71,7 @@ exports.getCustomHeatmap = (req, res) => {
         }
     })
     .catch(err => {
+        console.error(err);
         res.status(503).send({"err": err});
     });
 };
