@@ -63,7 +63,7 @@ exports.routesConfig = function (app) {
         MapController.getHeatmap
     ]);
 
-    app.get('/source_map/:mode/:player?', [
+    app.get('/sourcemap/:mode/:player?', [
         MapController.getSourceMap
     ]);
 
