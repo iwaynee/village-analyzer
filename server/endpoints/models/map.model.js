@@ -314,8 +314,11 @@ async function createCustomMap(data){
     // Draw All villages
     var all = await getVillagesFromPlayers("all");
     
-
-    ctx.fillStyle ="#8a5500";
+    if (data["defaultColor"]) {
+        ctx.fillStyle = data["defaultColor"];
+    } else {
+        ctx.fillStyle ="#8a5500";
+    }
     for (i in all){
         ctx.fillRect(all[i][0],all[i][1], 5, 5);
     }
