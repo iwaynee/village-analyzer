@@ -166,7 +166,7 @@ HeatCanvas.prototype.clear = function() {
 };
 
 HeatCanvas.prototype.exportImage = function() {
-    return this.canvas.getContext('2d').getImageData(0,0,800,800);
+    return this.canvas.getContext('2d').getImageData(0,0, this.width, this.height);
 };
 
 HeatCanvas.prototype._ensureDefaultPalette = function() {

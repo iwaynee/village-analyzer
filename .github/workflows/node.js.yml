@@ -34,3 +34,7 @@ jobs:
         npm run build --if-present
         npm i node-pre-gyp
         npm install canvas
+
+    - name: Restart Service
+      run: |
+        sudo systemctl restart village-analyzer.service
