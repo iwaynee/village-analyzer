@@ -4,13 +4,13 @@ const HeatCanvas = require('../../common/heatcanvas/heatcanvas');
 const fs = require("fs");
 const { createCanvas, loadImage } = require('canvas');
 const papa = require('papaparse');
-const { getCustomMap } = require('../controllers/map.controller');
 
 
 const RESOLUTION_WIDTH = 2000
 const RESOLUTION_HEIGHT = 2000
 
 
+/* ---------------------- Fetch Commands -> Move to different file -------------------- */
 
 async function fetchCommands() {
     /*
@@ -30,6 +30,8 @@ async function fetchCommands() {
 }
 
 
+
+/* ---------------------- Get Player and Ally Data -> Move to different file -------------------- */
 function getPlayersFromAlly( allyIds ){
     /*
     Returns all the players from a ally
@@ -106,65 +108,11 @@ function getVillagesFromPlayers( playerIds ){
 }
 
 
-function createHeatMap(points){
-
-    return new Promise(resolve => {
-
-        const canvas = createCanvas(RESOLUTION_WIDTH, RESOLUTION_HEIGHT);
-        var heatmap = new HeatCanvas(canvas);
-
-        // Get Heatpoints
-        points.forEach( point => {
-            heatmap.push(   
-                Math.round((point[0] - 300) * 5 +2),
-                Math.round((point[1] - 300) * 5 +2),
-                point[2])
-        });
-
-        // Set RenderingEnd Callback
-        heatmap.onRenderingEnd = function() {
-            resolve(canvas);
-        }
-        heatmap.render(1, HeatCanvas.LINEAR);
-    });
-}
-
-
-
-async function createStandartMap() {
-    /*
-    Creates Standart w178 Map
-    */
-
-    var data = {
-        "groups": [
-            {
-                "color" : "rgba(255, 0, 0, 0.7)",
-                "allys" : [
-                    "4", //TSP
-                    "733", //CODE
-                    "617", //BB
-                    "1836" // MM
-                ]
-            },
-            {
-                "color" : "rgba(46, 158, 255, 0.7)",
-                "allys" : [
-                    "643", //ALARM
-                    "152", //RALU
-                    "882", //PURA
-                    "2010", // HAMMER
-                    "31" // TWIX
-                ]
-            },
-        ]
-    }
-    return await createCustomMap(data);
-}
 
 
 
 
+/* ---------------------- Create Map -------------------- */
 function createBaseMap(ctx){
 
     // Create Background
@@ -210,7 +158,97 @@ function createBaseMap(ctx){
 
 
 
-async function test (params){
+function createHeatMap(points){
+
+    return new Promise(resolve => {
+
+        const canvas = createCanvas(RESOLUTION_WIDTH, RESOLUTION_HEIGHT);
+        var heatmap = new HeatCanvas(canvas);
+
+        // Get Heatpoints
+        points.forEach( point => {
+            heatmap.push(   
+                Math.round((point[0] - 300) * 5 +2),
+                Math.round((point[1] - 300) * 5 +2),
+                point[2])
+        });
+
+        // Set RenderingEnd Callback
+        heatmap.onRenderingEnd = function() {
+            resolve(canvas);
+        }
+        heatmap.render(1, HeatCanvas.LINEAR);
+    });
+}
+
+
+async function createCustomMap(data){
+
+    // Create Canvas
+    var canvas = createCanvas(RESOLUTION_WIDTH, RESOLUTION_HEIGHT);
+    var ctx = canvas.getContext("2d");
+    createBaseMap(ctx);
+
+    // Draw All villages
+    var all = await getVillagesFromPlayers("all");
+    
+    if (data["defaultColor"]) {
+        ctx.fillStyle = data["defaultColor"];
+    } else {
+        ctx.fillStyle ="#8a5500";
+    }
+    for (i in all){
+        ctx.fillRect(all[i][0],all[i][1], 5, 5);
+    }
+
+
+    for (i in data["groups"]){
+        var group = data["groups"][i];
+        
+        // Get Allys
+        var players = [];
+        if (group["allys"]){
+            players = await getPlayersFromAlly(group["allys"]);
+        }
+
+        // Get Players
+        var villages = [];
+        if (group["players"]){
+            players = group["players"].concat(players);
+        }
+        villages = await getVillagesFromPlayers(players);
+
+        // Get Villages
+        if (group["villages"]){
+            villages = group["villages"].concat(villages);
+        }
+        
+
+
+        // Get Color
+        ctx.fillStyle = group["color"];
+        
+        for (i in villages){
+            ctx.fillRect(villages[i][0],villages[i][1], 5, 5);
+        }
+    }
+
+    // Add Heatmap overlay
+    if (data["heat"]){
+        // Create Heatmap
+        var canvas_heat = await createHeatMap(data["heat"]);
+
+        // Overlay Hetmap to Canvas
+        ctx.drawImage(canvas_heat, 0, 0);
+    }
+
+    return canvas;
+}
+
+
+
+
+async function createStandartHeatmap(mode, player){
 
     // Get Commands
     res = await fetchCommands()
@@ -218,7 +256,6 @@ async function test (params){
     // Filter Incs
     var incsFiltered = [];
     var intensity = 1.5;
-    var mode = params.mode
 
     res.forEach( inc => {
 
@@ -262,22 +299,6 @@ async function test (params){
         }
     });
 
-    // Generate Map
-    standartMap = await createStandartMap();
-
-    var ctx = standartMap.getContext('2d');
-
-    // Mark player
-    if (params.player) {
-        var res = await getVillagesFromPlayers([params.player]);
-
-        // Mark all villages
-        ctx.fillStyle ="rgba(255, 255, 0, 0.7)";
-        for (key in res){
-            ctx.fillRect(res[key][0],res[key][1], 5, 5);
-        }
-    }
-
     // Generate Points for Heatmap
     var points = [];
     incsFiltered.forEach( inc => {
@@ -289,74 +310,156 @@ async function test (params){
             ]);
     });
 
-    // Create Heatmap
-    var canvas_heat = await createHeatMap(points);
+    // Generate Map
+    var data = {
+        "groups": [
+            {
+                "color" : "rgba(255, 0, 0, 0.7)",
+                "allys" : [
+                    "4", //TSP
+                    "733", //CODE
+                    "617", //BB
+                    "1836" // MM
+                ]
+            },
+            {
+                "color" : "rgba(46, 158, 255, 0.7)",
+                "allys" : [
+                    "643", //ALARM
+                    "152", //RALU
+                    "882", //PURA
+                    "2010", // HAMMER
+                    "31" // TWIX
+                ]
+            },
+        ],
+        "heat": points,
+    }
 
-    // Overlay Hetmap to Canvas
-    ctx.drawImage(canvas_heat, 0, 0);
+    // Mark player
+    if (player) {
+        data["groups"].push({
+            "color": "rgba(255, 255, 0, 0.7)",
+            "players": [player]
+                
+        });
+    }
+ 
+    var map = await createCustomMap(data);
 
     // Return and save heatmap
-    var buf = standartMap.toBuffer();
+    var buf = map.toBuffer();
+    fs.writeFileSync("temp.png", buf);
+    return buf;
+}
+
+
+async function createSourceHeatmap(mode, player){
+
+    // Get Commands
+    res = await fetchCommands()
+            
+    // Filter Incs
+    var incsFiltered = [];
+    var intensity = 2;
+
+    res.forEach( inc => {
+
+        // Noble
+        if (mode == "noble"){
+            if (inc.containsNoble) {
+                incsFiltered.push(inc);
+                intensity = 4;
+            }
+
+        // Large
+        } else if (mode == "large") {
+            if (inc.attackType.includes("large")) {
+                incsFiltered.push(inc);
+                intensity = 8;
+            }
+        
+        // mediumToLarge
+        } else if (mode == "mediumToLarge"){
+            if (inc.attackType.includes("large") || inc.attackType.includes("medium")) {
+                incsFiltered.push(inc);
+                intensity = 8;
+            }
+        
+        // unknownToLarge
+        } else if (mode == "unknownToLarge"){
+            if ( !inc.attackType.includes("small") ) {
+                incsFiltered.push(inc);
+            }
+
+        // Small
+        } else if (mode == "small"){
+            if (inc.attackType.includes("small")) {
+                incsFiltered.push(inc);
+            }
+
+        // All
+        } else {
+            incsFiltered.push(inc);
+        }
+    });
+
+    // Generate Points for Heatmap
+    var points = [];
+    incsFiltered.forEach( incF => {
+        coordinate = incF.source.split('|');
+        points.push([
+            coordinate[0],
+            coordinate[1],
+            intensity,  
+            ]);
+    });
+
+    // Generate Map
+    var data = {
+        "groups": [
+            {
+                "color" : "rgba(255, 0, 0, 0.7)",
+                "allys" : [
+                    "4", //TSP
+                    "733", //CODE
+                    "617", //BB
+                    "1836" // MM
+                ]
+            },
+            {
+                "color" : "rgba(46, 158, 255, 0.7)",
+                "allys" : [
+                    "643", //ALARM
+                    "152", //RALU
+                    "882", //PURA
+                    "2010", // HAMMER
+                    "31" // TWIX
+                ]
+            },
+        ],
+        "heat": points,
+    }
+
+    // Mark player
+    if (player) {
+        data["groups"].push({
+            "color": "rgba(255, 255, 0, 0.7)",
+            "players": [player]
+                
+        });
+    }
+    
+    var map = await createCustomMap(data);
+
+    // Return and save heatmap
+    var buf = map.toBuffer();
     fs.writeFileSync("temp.png", buf);
     return buf;
 }
 
 
 
-
-async function createCustomMap(data){
-
-    // Create Canvas
-    var canvas = createCanvas(RESOLUTION_WIDTH, RESOLUTION_HEIGHT);
-    var ctx = canvas.getContext("2d");
-    createBaseMap(ctx);
-
-    // Draw All villages
-    var all = await getVillagesFromPlayers("all");
-    
-    if (data["defaultColor"]) {
-        ctx.fillStyle = data["defaultColor"];
-    } else {
-        ctx.fillStyle ="#8a5500";
-    }
-    for (i in all){
-        ctx.fillRect(all[i][0],all[i][1], 5, 5);
-    }
-
-
-    for (i in data["groups"]){
-        var group = data["groups"][i];
-        
-        // Get Allys
-        var players = [];
-        if (group["allys"]){
-            players = await getPlayersFromAlly(group["allys"]);
-        }
-
-        // Get Players
-        var villages = [];
-        if (group["player"]){
-            players = group["player"].concat(players);
-        }
-        villages = await getVillagesFromPlayers(players);
-
-        // Get Villages
-        if (group["villages"]){
-            villages = group["villages"].concat(villages);
-        }
-        
-
-
-        // Get Color
-        ctx.fillStyle = group["color"];
-        
-        for (i in villages){
-            ctx.fillRect(villages[i][0],villages[i][1], 5, 5);
-        }
-    }
-
-    return canvas;
-}
 
 
 
@@ -368,23 +471,21 @@ async function createCustomMap(data){
 
 exports.getHeatmap = (params) => {
     return new Promise(resolve => {
-        var res = test(params);
+        var res = createStandartHeatmap(params.mode, params.player);
+        resolve(res);
+    });
+}
+
+
+exports.getSourceMap = (params) => {
+    return new Promise(resolve => {
+        var res = createSourceHeatmap(params.mode, params.player);
         resolve(res);
     });
 }
 
 
 exports.getCustomMap = (body) => {
-    return new Promise(resolve => {
-        createCustomMap(body).then(buf => {
-            fs.writeFileSync("temp.png", buf.toBuffer());
-            resolve(buf);
-        });
-    });
-}
-
-
-exports.getCustomHeatmap = (body) => {
     return new Promise(resolve => {
         createCustomMap(body).then(buf => {
             fs.writeFileSync("temp.png", buf.toBuffer());

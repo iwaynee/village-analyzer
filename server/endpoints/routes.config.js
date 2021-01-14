@@ -63,11 +63,11 @@ exports.routesConfig = function (app) {
         MapController.getHeatmap
     ]);
 
-    app.post('/custom_map', [
-        MapController.getCustomMap
+    app.get('/source_map/:mode/:player?', [
+        MapController.getSourceMap
     ]);
 
-    app.post('/custom_heatmap', [
-        MapController.getCustomHeatmap
+    app.post('/custom_map', [
+        MapController.getCustomMap
     ]);
 };

@@ -36,19 +36,18 @@ exports.getHeatmap = (req, res) => {
 };
 
 
+exports.getSourceMap = (req, res) => {
+    // Create Heatmap based on attacks which are saved in the Database
 
-
-
-exports.getCustomMap = (req, res) => {
-    // Create a custom Map 
-
-    MapModel.getCustomMap(req.body)
+    MapModel.getSourceMap(req.params)
     .then((result) => {
+
         if (result) {
             res.download("temp.png");
         } else {
             res.status(204).send({});
         }
+
     })
     .catch(err => {
         console.error(err);
@@ -58,11 +57,10 @@ exports.getCustomMap = (req, res) => {
 
 
 
-
-exports.getCustomHeatmap = (req, res) => {
+exports.getCustomMap = (req, res) => {
     // Create a custom Map 
 
-    MapModel.getCustomHeatmap(req.body)
+    MapModel.getCustomMap(req.body)
     .then((result) => {
         if (result) {
             res.download("temp.png");
