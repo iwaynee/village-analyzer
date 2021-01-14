@@ -21,7 +21,7 @@ var win = typeof unsafeWindow != 'undefined' ? unsafeWindow : window;
 var api = typeof unsafeWindow != 'undefined' ? unsafeWindow.ScriptAPI : window.ScriptAPI;
 var game_data = typeof unsafeWindow != 'undefined' ? unsafeWindow.game_data : window.game_data;
 
-var host = "http://46.101.174.242:3600";
+var host = "http://dsmap.kloud.software:3600";
 //var host = "http://localhost:3600";
 
 
@@ -144,9 +144,9 @@ function script_attackOverview(){
     /* update rows */
     function updateRows(data = {}) {
         createRequest("POST", host + "/village_types", {"villageIds": ids}).then((res) => {
-
-            allIncsRAW.forEach( element => {
-                village = element.querySelectorAll("td a")[3]
+						
+          	for (element in allIncsRAW) {
+                village = allIncsRAW[element].querySelectorAll("td a")[3]
                 cooridnate = getCoordinate(village.innerText);
                 id = getId("id", village.href);
                 
@@ -161,12 +161,13 @@ function script_attackOverview(){
                 for (i in data) {
                     if (data[i].source == cooridnate) {
                         text = text + " & unterwegs!";
-                        }
-                    break;
+                      	break;
+                    }
                 } 
 
                 village.innerHTML = village.innerHTML + " <span style='color:red'>" + text + "</span>";
-            });
+              	console.log("Runonce");
+            }
         });
     }
 
