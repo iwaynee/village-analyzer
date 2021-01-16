@@ -107,6 +107,43 @@ function getVillagesFromPlayers( playerIds ){
     });
 }
 
+function getVillagesFromIds( villageIds ){
+    /*
+    Returns all the players from a ally
+    */
+    var path_villages = "./ds-data/village.txt";
+
+    return new Promise( resolve => {
+        // Read players
+        var villageList = {};
+
+        stream = fs.createReadStream(path_villages);
+        stream.once('open', function () {
+            papa.parse(stream, {
+                complete: function(results) {
+                    villages = results.data;
+                    
+                    villages.forEach( village => {
+                        
+                        var x = Math.round((village[2] - 300) * 5);
+                        var y = Math.round((village[3] - 300) * 5);
+                        var villageId = village[0];
+                        
+                        if ( villageIds.includes(villageId) ){
+                            villageList[villageId] = [x, y];
+
+                        } else if (villageIds == "all") {
+                            villageList[villageId] = [x, y];
+                        }
+                    });
+                }
+            });
+        });
+        stream.once('close', function () {
+            resolve(villageList);
+        });
+    });
+}
 
 
 
@@ -220,7 +257,11 @@ async function createCustomMap(data){
 
         // Get Villages
         if (group["villages"]){
-            villages = group["villages"].concat(villages);
+            var temp = await getVillagesFromIds(group["villages"]);
+            
+            for (i in temp){
+                ctx.fillRect(temp[i][0],temp[i][1], 5, 5);
+            }
         }
         
 
