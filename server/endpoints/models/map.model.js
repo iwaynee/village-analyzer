@@ -225,21 +225,6 @@ async function createCustomMap(data){
     var canvas = createCanvas(RESOLUTION_WIDTH, RESOLUTION_HEIGHT);
     var ctx = canvas.getContext("2d");
     createBaseMap(ctx);
-	
-	data = {
-	"defaultColor": "rgba(255,0,255,0)",
-	  "groups": [
-		{
-		  "color": "rgba(255,0,255,255)",
-		  "villages": [
-			"19717"
-		  ],
-		}
-	  ]
-	};
-    
-    console.log(data);
-	
 
     // Draw All villages
     var all = await getVillagesFromPlayers("all");
