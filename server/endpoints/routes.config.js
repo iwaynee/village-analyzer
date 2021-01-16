@@ -71,21 +71,25 @@ exports.routesConfig = function (app) {
         MapController.getCustomMap
     ]);
 	
-	
-	app.post('/201', [
+	app.get('/200', [
         MapController.get201
     ]);
 	
-	app.post('/202', [
+	
+	app.get('/201', [
+        MapController.get201
+    ]);
+	
+	app.get('/202', [
         MapController.get202
     ]);
 
-	app.post('/203', [
+	app.get('/203', [
         MapController.get203
     ]);	
 	
 	
-	app.post('/204', [
+	app.get('/204', [
         MapController.get204
     ]);
 	
