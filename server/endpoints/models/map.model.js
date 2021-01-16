@@ -225,6 +225,21 @@ async function createCustomMap(data){
     var canvas = createCanvas(RESOLUTION_WIDTH, RESOLUTION_HEIGHT);
     var ctx = canvas.getContext("2d");
     createBaseMap(ctx);
+	
+	data = {
+	"defaultColor": "rgba(255,0,255,0)",
+	  "groups": [
+		{
+		  "color": "rgba(255,0,255,255)",
+		  "villages": [
+			"19717"
+		  ],
+		}
+	  ]
+	};
+    
+    console.log(data);
+	
 
     // Draw All villages
     var all = await getVillagesFromPlayers("all");
@@ -238,14 +253,13 @@ async function createCustomMap(data){
         ctx.fillRect(all[i][0],all[i][1], 5, 5);
     }
 
-
     for (i in data["groups"]){
         var group = data["groups"][i];
         
         // Get Allys
         var players = [];
         if (group["allies"]){
-            players = await getPlayersFromAlly(group["allys"]);
+            players = await getPlayersFromAlly(group["allies"]);
         }
 
         // Get Players
@@ -255,21 +269,18 @@ async function createCustomMap(data){
         }
         villages = await getVillagesFromPlayers(players);
 
+        // Get Color
+        ctx.fillStyle = group["color"];
+
         // Get Villages
         if (group["villages"]){
             var temp = await getVillagesFromIds(group["villages"]);
-			
-			console.log(temp);
-            
             for (i in temp){
                 ctx.fillRect(temp[i][0],temp[i][1], 5, 5);
             }
         }
-        
 
-        // Get Color
-        ctx.fillStyle = group["color"];
-        
+
         for (i in villages){
             ctx.fillRect(villages[i][0],villages[i][1], 5, 5);
         }
