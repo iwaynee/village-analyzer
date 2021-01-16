@@ -258,13 +258,14 @@ async function createCustomMap(data){
         // Get Villages
         if (group["villages"]){
             var temp = await getVillagesFromIds(group["villages"]);
+			
+			console.log(temp);
             
             for (i in temp){
                 ctx.fillRect(temp[i][0],temp[i][1], 5, 5);
             }
         }
         
-
 
         // Get Color
         ctx.fillStyle = group["color"];
@@ -356,7 +357,7 @@ async function createStandartHeatmap(mode, player){
         "groups": [
             {
                 "color" : "rgba(255, 0, 0, 0.7)",
-                "allys" : [
+                "allies" : [
                     "4", //TSP
                     "733", //CODE
                     "617", //BB
@@ -365,7 +366,7 @@ async function createStandartHeatmap(mode, player){
             },
             {
                 "color" : "rgba(46, 158, 255, 0.7)",
-                "allys" : [
+                "allies" : [
                     "643", //ALARM
                     "152", //RALU
                     "882", //PURA
