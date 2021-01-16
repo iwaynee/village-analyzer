@@ -244,7 +244,7 @@ async function createCustomMap(data){
         
         // Get Allys
         var players = [];
-        if (group["allys"]){
+        if (group["allies"]){
             players = await getPlayersFromAlly(group["allys"]);
         }
 
