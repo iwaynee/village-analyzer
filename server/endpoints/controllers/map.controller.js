@@ -60,6 +60,8 @@ exports.getSourceMap = (req, res) => {
 exports.getCustomMap = (req, res) => {
     // Create a custom Map 
 
+	console.log(req.body);
+
     MapModel.getCustomMap(req.body)
     .then((result) => {
         if (result) {
