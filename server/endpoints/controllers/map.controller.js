@@ -73,3 +73,37 @@ exports.getCustomMap = (req, res) => {
         res.status(503).send({"err": err});
     });
 };
+
+
+
+
+
+exports.get200 = (req, res) => {
+    // Create a custom Map 
+
+    res.status(200).send({"lul": 1});
+};
+
+exports.get201 = (req, res) => {
+    // Create a custom Map 
+
+    res.status(201).send({"lul": 1});
+};
+
+exports.get202 = (req, res) => {
+    // Create a custom Map 
+
+    res.status(202).send({"lul": 1});
+};
+
+exports.get203 = (req, res) => {
+    // Create a custom Map 
+
+    res.status(203).send({"lul": 1});
+};
+
+exports.get204 = (req, res) => {
+    // Create a custom Map 
+
+    res.status(204).send({"lul": 1});
+};
