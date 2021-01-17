@@ -75,9 +75,3 @@ exports.getCustomMap = (req, res) => {
 };
 
 
-
-
-
-
-
-
