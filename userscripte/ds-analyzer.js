@@ -21,11 +21,22 @@ var win = typeof unsafeWindow != 'undefined' ? unsafeWindow : window;
 var api = typeof unsafeWindow != 'undefined' ? unsafeWindow.ScriptAPI : window.ScriptAPI;
 var game_data = typeof unsafeWindow != 'undefined' ? unsafeWindow.game_data : window.game_data;
 
-var host = "http://dsmap.kloud.software:3600";
-//var host = "http://localhost:3600";
+//var host = "http://dsmap.kloud.software:3600";
+var host = "http://localhost:3600";
 
 
 /* UTIL FUNCTIONS */
+Array.prototype.sum = function () {
+    var total = 0;
+    var i = this.length; 
+
+    while (i--) {
+        total += Number(this[i]);
+    }
+
+    return total;
+}
+
 function getId(name, url = window.location.href) {
     /*
     Get parameter from String or URL
@@ -107,21 +118,21 @@ function script_villageInfo(){
         var text = "?";
 
         // Set Title
-        if ("village_type" in res["response"]) {
-            text = res["response"]["village_type"];
+        if ("village_type" in res) {
+            text = res["village_type"];
         }
         e_title.textContent = text;
 
         // Set Buildings
-        if ("building_level" in res["response"]) {
-            t = new Date(res["response"]["building_timestamp"]);
+        if ("buildings" in res) {
+            t = new Date(res["timestamp"]);
             e_buildings.innerHTML  = '<table class="vis" style="margin-top:10px;" width="100%"><tbody>' +
                             '<tr><th>Gebäude:</th><th>'+ t.getDate() + '.' + (t.getMonth() + 1) + '.' + t.getFullYear()  +'</th></tr>'+
-                            '<tr><td style="vertical-align:middle;" nowrap=""><img src="https://dsde.innogamescdn.com/asset/6052b745/graphic/buildings/main.png" style="max-height:16px;" alt="" class="middle"> <span class="middle">Hauptgebäude</span></td><td class="middle">'+ res["response"]["building_level"]["main"] +'</td></tr>' +
-                            '<tr><td style="vertical-align:middle;" nowrap=""><img src="https://dsde.innogamescdn.com/asset/6052b745/graphic/buildings/smith.png" style="max-height:16px;" alt="" class="middle"> <span class="middle">Schmiede</span></td><td class="middle">'+ res["response"]["building_level"]["smith"] +'</td></tr>' +
-                            '<tr><td style="vertical-align:middle;" nowrap=""><img src="https://dsde.innogamescdn.com/asset/6052b745/graphic/buildings/farm.png" style="max-height:16px;" alt="" class="middle"> <span class="middle">Bauernhof</span></td><td class="middle">'+ res["response"]["building_level"]["farm"] +'</td></tr>' +
-                            '<tr><td style="vertical-align:middle;" nowrap=""><img src="https://dsde.innogamescdn.com/asset/6052b745/graphic/buildings/storage.png" style="max-height:16px;" alt="" class="middle"> <span class="middle">Speicher</span></td><td class="middle">'+ res["response"]["building_level"]["storage"] +'</td></tr>' +
-                            '<tr><td style="vertical-align:middle;" nowrap=""><img src="https://dsde.innogamescdn.com/asset/6052b745/graphic/buildings/wall.png" style="max-height:16px;" alt="" class="middle"> <span class="middle">Wall</span></td><td class="middle">'+ res["response"]["building_level"]["wall"] +'</td></tr>' +
+                            '<tr><td style="vertical-align:middle;" nowrap=""><img src="https://dsde.innogamescdn.com/asset/6052b745/graphic/buildings/main.png" style="max-height:16px;" alt="" class="middle"> <span class="middle">Hauptgebäude</span></td><td class="middle">'+ res["buildings"]["main"] +'</td></tr>' +
+                            '<tr><td style="vertical-align:middle;" nowrap=""><img src="https://dsde.innogamescdn.com/asset/6052b745/graphic/buildings/smith.png" style="max-height:16px;" alt="" class="middle"> <span class="middle">Schmiede</span></td><td class="middle">'+ res["buildings"]["smith"] +'</td></tr>' +
+                            '<tr><td style="vertical-align:middle;" nowrap=""><img src="https://dsde.innogamescdn.com/asset/6052b745/graphic/buildings/farm.png" style="max-height:16px;" alt="" class="middle"> <span class="middle">Bauernhof</span></td><td class="middle">'+ res["buildings"]["farm"] +'</td></tr>' +
+                            '<tr><td style="vertical-align:middle;" nowrap=""><img src="https://dsde.innogamescdn.com/asset/6052b745/graphic/buildings/storage.png" style="max-height:16px;" alt="" class="middle"> <span class="middle">Speicher</span></td><td class="middle">'+ res["buildings"]["storage"] +'</td></tr>' +
+                            '<tr><td style="vertical-align:middle;" nowrap=""><img src="https://dsde.innogamescdn.com/asset/6052b745/graphic/buildings/wall.png" style="max-height:16px;" alt="" class="middle"> <span class="middle">Wall</span></td><td class="middle">'+ res["buildings"]["wall"] +'</td></tr>' +
                             '</tbody></table>';            
         }
     });
@@ -289,169 +300,238 @@ function script_attackOverview(){
 function script_report(){
 
     // Check report type
-    if (document.querySelectorAll("#attack_info_att").length == 0) {
-        return;
-    }
+    var report_data = {};
 
-    var report_data = {"troops": {}};
+    // Report id
+    report_data["report_id"] = param_view;
 
-    var incomingDateRAW = document.querySelectorAll(".nopad .vis tbody tr td")[8].innerText;
-    var incomingDateRAW_d = incomingDateRAW.split('.');
-    var incomingDateRAW_h = incomingDateRAW.split(':');
-
-    report_data["timestamp"] = Math.round(new Date(20 + incomingDateRAW_d[2].split(' ')[0], 
-                                                incomingDateRAW_d[1]-1, 
-                                                incomingDateRAW_d[0], 
-                                                incomingDateRAW_h[0].split(' ')[1]-1, 
-                                                incomingDateRAW_h[1], 
-                                                incomingDateRAW_h[2]).getTime()/1000); 
-
+    // Server
     report_data["server"] = game_data.world;
+    
+    // Sender
+    report_data["sender"] = game_data.player.id;
 
-    // Currently not used!
-    //report_data["reportId"] = param_view;
+    // Support
+    if (document.querySelectorAll(".report_ReportSupport").length > 0) {
+        report_data["type"] = "support";
 
-    report_data["attacker_village"] = getId("id", document.querySelectorAll("#attack_info_att tr a")[1].href);
-    report_data["defender_village"] = getId("id", document.querySelectorAll("#attack_info_def tr a")[1].href);
+        // Timestamp
+        var incomingDateRAW = document.querySelectorAll(".vis tbody tr td")[19].innerText;
+        var incomingDateRAW_d = incomingDateRAW.split('.');
+        var incomingDateRAW_h = incomingDateRAW.split(':');
+        report_data["timestamp"] = Math.round(new Date(20 + incomingDateRAW_d[2].split(' ')[0], 
+                                                    incomingDateRAW_d[1]-1, 
+                                                    incomingDateRAW_d[0], 
+                                                    incomingDateRAW_h[0].split(' ')[1]-1, 
+                                                    incomingDateRAW_h[1], 
+                                                    incomingDateRAW_h[2]).getTime()/1000); 
 
-    // Attacking Troops
-    report_data["troops"]["attack_troops"] = [
-        document.querySelectorAll("#attack_info_att .unit-item-spear")[0].innerText,
-        document.querySelectorAll("#attack_info_att .unit-item-sword")[0].innerText,
-        document.querySelectorAll("#attack_info_att .unit-item-axe")[0].innerText,
-        document.querySelectorAll("#attack_info_att .unit-item-spy")[0].innerText,
-        document.querySelectorAll("#attack_info_att .unit-item-light")[0].innerText,
-        document.querySelectorAll("#attack_info_att .unit-item-heavy")[0].innerText,
-        document.querySelectorAll("#attack_info_att .unit-item-ram")[0].innerText,
-        document.querySelectorAll("#attack_info_att .unit-item-catapult")[0].innerText,
-        document.querySelectorAll("#attack_info_att .unit-item-snob")[0].innerText,
-    ];
-    report_data["troops"]["attack_troops_dead"] = [
-        document.querySelectorAll("#attack_info_att .unit-item-spear")[1].innerText,
-        document.querySelectorAll("#attack_info_att .unit-item-sword")[1].innerText,
-        document.querySelectorAll("#attack_info_att .unit-item-axe")[1].innerText,
-        document.querySelectorAll("#attack_info_att .unit-item-spy")[1].innerText,
-        document.querySelectorAll("#attack_info_att .unit-item-light")[1].innerText,
-        document.querySelectorAll("#attack_info_att .unit-item-heavy")[1].innerText,
-        document.querySelectorAll("#attack_info_att .unit-item-ram")[1].innerText,
-        document.querySelectorAll("#attack_info_att .unit-item-catapult")[1].innerText,
-        document.querySelectorAll("#attack_info_att .unit-item-snob")[1].innerText
-    ];
+        // Players
+        report_data["source_player"] = getId("id", document.querySelectorAll(".overlay-item a:not(.ctx)")[0].href);
+        report_data["target_player"] = getId("id", document.querySelectorAll(".overlay-item a:not(.ctx)")[2].href);
 
-    // Check for defending Troops
-    if ( document.querySelectorAll("#attack_info_def .unit-item-spear").length > 0 ){
-        report_data["troops"]["defending_troops"] = [
-            document.querySelectorAll("#attack_info_def .unit-item-spear")[0].innerText,
-            document.querySelectorAll("#attack_info_def .unit-item-sword")[0].innerText,
-            document.querySelectorAll("#attack_info_def .unit-item-axe")[0].innerText,
-            document.querySelectorAll("#attack_info_def .unit-item-spy")[0].innerText,
-            document.querySelectorAll("#attack_info_def .unit-item-light")[0].innerText,
-            document.querySelectorAll("#attack_info_def .unit-item-heavy")[0].innerText,
-            document.querySelectorAll("#attack_info_def .unit-item-ram")[0].innerText,
-            document.querySelectorAll("#attack_info_def .unit-item-catapult")[0].innerText,
-            document.querySelectorAll("#attack_info_def .unit-item-snob")[0].innerText,
+        // Villages
+        report_data["source_village"] = getId("id", document.querySelectorAll(".overlay-item a:not(.ctx)")[1].href);
+        report_data["target_village"] = getId("id", document.querySelectorAll(".overlay-item a:not(.ctx)")[3].href);
+
+        // Get troops
+        report_data["troops"] = {};
+        report_data["troops"]["support"] = [
+            document.querySelectorAll(".unit-item-spear")[0].innerText,
+            document.querySelectorAll(".unit-item-sword")[0].innerText,
+            document.querySelectorAll(".unit-item-axe")[0].innerText,
+            document.querySelectorAll(".unit-item-spy")[0].innerText,
+            document.querySelectorAll(".unit-item-light")[0].innerText,
+            document.querySelectorAll(".unit-item-heavy")[0].innerText,
+            document.querySelectorAll(".unit-item-ram")[0].innerText,
+            document.querySelectorAll(".unit-item-catapult")[0].innerText,
+            document.querySelectorAll(".unit-item-snob")[0].innerText,
         ];
 
-        report_data["troops"]["defending_troops_dead"] = [
-            document.querySelectorAll("#attack_info_def .unit-item-spear")[1].innerText,
-            document.querySelectorAll("#attack_info_def .unit-item-sword")[1].innerText,
-            document.querySelectorAll("#attack_info_def .unit-item-axe")[1].innerText,
-            document.querySelectorAll("#attack_info_def .unit-item-spy")[1].innerText,
-            document.querySelectorAll("#attack_info_def .unit-item-light")[1].innerText,
-            document.querySelectorAll("#attack_info_def .unit-item-heavy")[1].innerText,
-            document.querySelectorAll("#attack_info_def .unit-item-ram")[1].innerText,
-            document.querySelectorAll("#attack_info_def .unit-item-catapult")[1].innerText,
-            document.querySelectorAll("#attack_info_def .unit-item-snob")[1].innerText
+
+        // TODO: Friendly SD drop
+    
+    // Attack
+    } else if (document.querySelectorAll(".report_ReportAttack").length > 0) {
+        report_data["type"] = "attack";
+
+        // Timestamp
+        var incomingDateRAW = document.querySelectorAll(".vis tbody tr td")[20].innerText;
+        var incomingDateRAW_d = incomingDateRAW.split('.');
+        var incomingDateRAW_h = incomingDateRAW.split(':');
+        report_data["timestamp"] = Math.round(new Date(20 + incomingDateRAW_d[2].split(' ')[0], 
+                                                    incomingDateRAW_d[1]-1, 
+                                                    incomingDateRAW_d[0], 
+                                                    incomingDateRAW_h[0].split(' ')[1]-1, 
+                                                    incomingDateRAW_h[1], 
+                                                    incomingDateRAW_h[2]).getTime()/1000); 
+
+        // Players
+        report_data["source_player"] = getId("id", document.querySelectorAll("#attack_info_att tr a")[0].href);
+        report_data["target_player"] = getId("id", document.querySelectorAll("#attack_info_def tr a")[0].href);
+
+        // Villages
+        report_data["source_village"] = getId("id", document.querySelectorAll("#attack_info_att tr a")[1].href);
+        report_data["target_village"] = getId("id", document.querySelectorAll("#attack_info_def tr a")[1].href);
+
+        // TODO: Add luck
+
+        // Troops
+        report_data["troops"] = {};
+
+        // Attacking Troops
+        report_data["troops"]["attacker"] = [
+            document.querySelectorAll("#attack_info_att .unit-item-spear")[0].innerText,
+            document.querySelectorAll("#attack_info_att .unit-item-sword")[0].innerText,
+            document.querySelectorAll("#attack_info_att .unit-item-axe")[0].innerText,
+            document.querySelectorAll("#attack_info_att .unit-item-spy")[0].innerText,
+            document.querySelectorAll("#attack_info_att .unit-item-light")[0].innerText,
+            document.querySelectorAll("#attack_info_att .unit-item-heavy")[0].innerText,
+            document.querySelectorAll("#attack_info_att .unit-item-ram")[0].innerText,
+            document.querySelectorAll("#attack_info_att .unit-item-catapult")[0].innerText,
+            document.querySelectorAll("#attack_info_att .unit-item-snob")[0].innerText,
         ];
-    }
-
-    // Check for outside Troops
-    if (document.querySelectorAll("#attack_spy_away").length == 1) {
-        report_data["troops"]["outside_troops"] = [
-            document.querySelectorAll("#attack_spy_away .unit-item-spear")[0].innerText,
-            document.querySelectorAll("#attack_spy_away .unit-item-sword")[0].innerText,
-            document.querySelectorAll("#attack_spy_away .unit-item-axe")[0].innerText,
-            document.querySelectorAll("#attack_spy_away .unit-item-spy")[0].innerText,
-            document.querySelectorAll("#attack_spy_away .unit-item-light")[0].innerText,
-            document.querySelectorAll("#attack_spy_away .unit-item-heavy")[0].innerText,
-            document.querySelectorAll("#attack_spy_away .unit-item-ram")[0].innerText,
-            document.querySelectorAll("#attack_spy_away .unit-item-catapult")[0].innerText,
-            document.querySelectorAll("#attack_spy_away .unit-item-snob")[0].innerText,
+        report_data["troops"]["attacker_lost"] = [
+            document.querySelectorAll("#attack_info_att .unit-item-spear")[1].innerText,
+            document.querySelectorAll("#attack_info_att .unit-item-sword")[1].innerText,
+            document.querySelectorAll("#attack_info_att .unit-item-axe")[1].innerText,
+            document.querySelectorAll("#attack_info_att .unit-item-spy")[1].innerText,
+            document.querySelectorAll("#attack_info_att .unit-item-light")[1].innerText,
+            document.querySelectorAll("#attack_info_att .unit-item-heavy")[1].innerText,
+            document.querySelectorAll("#attack_info_att .unit-item-ram")[1].innerText,
+            document.querySelectorAll("#attack_info_att .unit-item-catapult")[1].innerText,
+            document.querySelectorAll("#attack_info_att .unit-item-snob")[1].innerText
         ];
-    }
 
-    // Check for building spy
-    if (document.querySelectorAll("table#attack_spy_buildings_left tr").length > 0) {
-        var buildings = {
-            "main": 0,
-            "barracks": 0,
-            "stable": 0,
-            "garage": 0,
-            "watchtower": 0,
-            "snob": 0,
-            "smith": 0,
-            "place": 0,
-            "market": 0,
-            "wood": 0,
-            "stone": 0,
-            "iron": 0,
-            "farm": 0,
-            "storage": 0,
-            "hide": 0,
-            "wall": 0,
-        };
+        // Check for defending Troops
+        if ( document.querySelectorAll("#attack_info_def .unit-item-spear").length > 0 ){
+            report_data["troops"]["defender"] = [
+                document.querySelectorAll("#attack_info_def .unit-item-spear")[0].innerText,
+                document.querySelectorAll("#attack_info_def .unit-item-sword")[0].innerText,
+                document.querySelectorAll("#attack_info_def .unit-item-axe")[0].innerText,
+                document.querySelectorAll("#attack_info_def .unit-item-spy")[0].innerText,
+                document.querySelectorAll("#attack_info_def .unit-item-light")[0].innerText,
+                document.querySelectorAll("#attack_info_def .unit-item-heavy")[0].innerText,
+                document.querySelectorAll("#attack_info_def .unit-item-ram")[0].innerText,
+                document.querySelectorAll("#attack_info_def .unit-item-catapult")[0].innerText,
+                document.querySelectorAll("#attack_info_def .unit-item-snob")[0].innerText,
+            ];
 
-        var left = document.querySelectorAll("table#attack_spy_buildings_left tr");
-        var right = document.querySelectorAll("table#attack_spy_buildings_right tr");
-        
-
-        function nameToBuilding(name){
-            var lut = {
-                "Hauptgebäude": "main",
-                "Kaserne": "barracks",
-                "Stall": "stable",
-                "Werkstatt": "garage",
-                "Adelshof": "snob",
-                "Schmiede": "smith",
-                "Versammlungsplatz": "place",
-                "Wachturm": "watchtower",
-                "Marktplatz": "market",
-                "Holzfällerlager": "wood",
-                "Lehmgrube": "stone",
-                "Eisenmine": "iron",
-                "Bauernhof": "farm",
-                "Speicher": "storage",
-                "Versteck": "hide",
-                "Wall": "wall",
-            }
-
-            if (name in lut){
-                return lut[name];
-            } else {
-                return false;
-            }
-
-        }
-        // process left
-        for (i = 1; i < left.length; i++) {
-            var building = left[i].children[0].children[1].innerText;
-            var lvl = left[i].children[1].innerText;
-                
-            buildings[nameToBuilding(building)] = lvl;
+            report_data["troops"]["defender_lost"] = [
+                document.querySelectorAll("#attack_info_def .unit-item-spear")[1].innerText,
+                document.querySelectorAll("#attack_info_def .unit-item-sword")[1].innerText,
+                document.querySelectorAll("#attack_info_def .unit-item-axe")[1].innerText,
+                document.querySelectorAll("#attack_info_def .unit-item-spy")[1].innerText,
+                document.querySelectorAll("#attack_info_def .unit-item-light")[1].innerText,
+                document.querySelectorAll("#attack_info_def .unit-item-heavy")[1].innerText,
+                document.querySelectorAll("#attack_info_def .unit-item-ram")[1].innerText,
+                document.querySelectorAll("#attack_info_def .unit-item-catapult")[1].innerText,
+                document.querySelectorAll("#attack_info_def .unit-item-snob")[1].innerText
+            ];
         }
 
-        for (i = 1; i < right.length; i++) {
-            if (right[i].children[0].children[1]) {
-                var building = right[i].children[0].children[1].innerText;
-                var lvl = right[i].children[1].innerText;
+        // Check for outside Troops
+        if (document.querySelectorAll("#attack_spy_away").length == 1) {
+            report_data["troops"]["outside_troops"] = [
+                document.querySelectorAll("#attack_spy_away .unit-item-spear")[0].innerText,
+                document.querySelectorAll("#attack_spy_away .unit-item-sword")[0].innerText,
+                document.querySelectorAll("#attack_spy_away .unit-item-axe")[0].innerText,
+                document.querySelectorAll("#attack_spy_away .unit-item-spy")[0].innerText,
+                document.querySelectorAll("#attack_spy_away .unit-item-light")[0].innerText,
+                document.querySelectorAll("#attack_spy_away .unit-item-heavy")[0].innerText,
+                document.querySelectorAll("#attack_spy_away .unit-item-ram")[0].innerText,
+                document.querySelectorAll("#attack_spy_away .unit-item-catapult")[0].innerText,
+                document.querySelectorAll("#attack_spy_away .unit-item-snob")[0].innerText,
+            ];
+        }
 
+        // Check for building spy
+        if (document.querySelectorAll("table#attack_spy_buildings_left tr").length > 0) {
+            var buildings = {
+                "main": 0,
+                "barracks": 0,
+                "stable": 0,
+                "garage": 0,
+                "watchtower": 0,
+                "snob": 0,
+                "smith": 0,
+                "place": 0,
+                "market": 0,
+                "wood": 0,
+                "stone": 0,
+                "iron": 0,
+                "farm": 0,
+                "storage": 0,
+                "hide": 0,
+                "wall": 0,
+            };
+
+            var left = document.querySelectorAll("table#attack_spy_buildings_left tr");
+            var right = document.querySelectorAll("table#attack_spy_buildings_right tr");
+            
+
+            function nameToBuilding(name){
+                var lut = {
+                    "Hauptgebäude": "main",
+                    "Kaserne": "barracks",
+                    "Stall": "stable",
+                    "Werkstatt": "garage",
+                    "Adelshof": "snob",
+                    "Schmiede": "smith",
+                    "Versammlungsplatz": "place",
+                    "Wachturm": "watchtower",
+                    "Marktplatz": "market",
+                    "Holzfällerlager": "wood",
+                    "Lehmgrube": "stone",
+                    "Eisenmine": "iron",
+                    "Bauernhof": "farm",
+                    "Speicher": "storage",
+                    "Versteck": "hide",
+                    "Wall": "wall",
+                }
+
+                if (name in lut){
+                    return lut[name];
+                } else {
+                    return false;
+                }
+
+            }
+
+            // process left
+            for (i = 1; i < left.length; i++) {
+                var building = left[i].children[0].children[1].innerText;
+                var lvl = left[i].children[1].innerText;
+                    
                 buildings[nameToBuilding(building)] = lvl;
             }
-        }
-        
-        report_data["building_lvl"] = buildings;
-    }
 
+            for (i = 1; i < right.length; i++) {
+                if (right[i].children[0].children[1]) {
+                    var building = right[i].children[0].children[1].innerText;
+                    var lvl = right[i].children[1].innerText;
+
+                    buildings[nameToBuilding(building)] = lvl;
+                }
+            }
+            
+            report_data["buildings"] = buildings;
+        }
+
+        // Drop Fakes
+        // Fake on a friendly player
+        if (report_data["sender"] == report_data["target_player"] &&
+            report_data["troops"]["attacker"].sum() < 500){
+            return false;
+        }
+
+        // Red fake on a enemy player
+        if (report_data["sender"] == report_data["source_player"] &&
+            report_data["troops"]["attacker"].sum() <= 1000 &&
+            report_data["troops"]["attacker"].sum() == report_data["troops"]["attacker_lost"].sum()){
+            return false;
+        }   
+    }
     createRequest("POST", host + "/new_report", report_data);
 }
 
@@ -478,7 +558,7 @@ if (param_screen == "overview_villages" &&
 
     /* ATTACK OVERVIEW */
     console.log("ATTACKS OVERVIEW SCRIPT");
-    script_attackOverview();
+    //script_attackOverview();
 }
 
 if (param_screen == "info_village") {

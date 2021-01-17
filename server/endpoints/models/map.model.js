@@ -107,6 +107,43 @@ function getVillagesFromPlayers( playerIds ){
     });
 }
 
+function getVillagesFromIds( villageIds ){
+    /*
+    Returns all the players from a ally
+    */
+    var path_villages = "./ds-data/village.txt";
+
+    return new Promise( resolve => {
+        // Read players
+        var villageList = {};
+
+        stream = fs.createReadStream(path_villages);
+        stream.once('open', function () {
+            papa.parse(stream, {
+                complete: function(results) {
+                    villages = results.data;
+                    
+                    villages.forEach( village => {
+                        
+                        var x = Math.round((village[2] - 300) * 5);
+                        var y = Math.round((village[3] - 300) * 5);
+                        var villageId = village[0];
+                        
+                        if ( villageIds.includes(villageId) ){
+                            villageList[villageId] = [x, y];
+
+                        } else if (villageIds == "all") {
+                            villageList[villageId] = [x, y];
+                        }
+                    });
+                }
+            });
+        });
+        stream.once('close', function () {
+            resolve(villageList);
+        });
+    });
+}
 
 
 
@@ -201,14 +238,13 @@ async function createCustomMap(data){
         ctx.fillRect(all[i][0],all[i][1], 5, 5);
     }
 
-
     for (i in data["groups"]){
         var group = data["groups"][i];
         
         // Get Allys
         var players = [];
-        if (group["allys"]){
-            players = await getPlayersFromAlly(group["allys"]);
+        if (group["allies"]){
+            players = await getPlayersFromAlly(group["allies"]);
         }
 
         // Get Players
@@ -218,16 +254,18 @@ async function createCustomMap(data){
         }
         villages = await getVillagesFromPlayers(players);
 
-        // Get Villages
-        if (group["villages"]){
-            villages = group["villages"].concat(villages);
-        }
-        
-
-
         // Get Color
         ctx.fillStyle = group["color"];
-        
+
+        // Get Villages
+        if (group["villages"]){
+            var temp = await getVillagesFromIds(group["villages"]);
+            for (i in temp){
+                ctx.fillRect(temp[i][0],temp[i][1], 5, 5);
+            }
+        }
+
+
         for (i in villages){
             ctx.fillRect(villages[i][0],villages[i][1], 5, 5);
         }
@@ -315,7 +353,7 @@ async function createStandartHeatmap(mode, player){
         "groups": [
             {
                 "color" : "rgba(255, 0, 0, 0.7)",
-                "allys" : [
+                "allies" : [
                     "4", //TSP
                     "733", //CODE
                     "617", //BB
@@ -324,7 +362,7 @@ async function createStandartHeatmap(mode, player){
             },
             {
                 "color" : "rgba(46, 158, 255, 0.7)",
-                "allys" : [
+                "allies" : [
                     "643", //ALARM
                     "152", //RALU
                     "882", //PURA

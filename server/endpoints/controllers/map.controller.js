@@ -63,7 +63,7 @@ exports.getCustomMap = (req, res) => {
     MapModel.getCustomMap(req.body)
     .then((result) => {
         if (result) {
-            res.download("temp.png");
+            res.download("temp.png"); 
         } else {
             res.status(204).send({});
         }
@@ -73,3 +73,11 @@ exports.getCustomMap = (req, res) => {
         res.status(503).send({"err": err});
     });
 };
+
+
+
+
+
+
+
+

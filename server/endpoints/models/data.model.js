@@ -1,6 +1,149 @@
 const mongoose = require('../../common/services/mongoose.service').mongoose;
 const Schema = mongoose.Schema;
 
+
+const buildingsSchema = new Schema({
+    timestamp: {type: Date},
+
+    target_player: Number,
+    target_village: Number,
+
+    buildings: {
+        main: Number,
+        barracks: Number,
+        stable: Number,
+        garage: Number,
+        watchtower: Number,
+        snob: Number,
+        smith: Number,
+        place: Number,
+        market: Number,
+        wood: Number,
+        stone: Number,
+        iron: Number,
+        farm: Number,
+        storage: Number,
+        hide: Number,
+        wall: Number,
+    },
+    loyality: Number,
+});
+
+
+const reportSchema = new Schema({
+    report_id: Number,
+    timestamp: {type: Date},
+    type: String,
+
+    source_player: Number,
+    target_player: Number,
+    source_village: Number,
+    target_village: Number,
+    
+    troops: {
+        attacker: [Number],
+        attacker_lost: [Number],
+        defender: [Number],
+        defender_lost: [Number],
+        outside: [Number],
+        support: [Number]
+    },
+
+    buildings: {
+        main: Number,
+        barracks: Number,
+        stable: Number,
+        garage: Number,
+        watchtower: Number,
+        snob: Number,
+        smith: Number,
+        place: Number,
+        market: Number,
+        wood: Number,
+        stone: Number,
+        iron: Number,
+        farm: Number,
+        storage: Number,
+        hide: Number,
+        wall: Number,
+    },
+
+    loyality: Number,
+    luck: Number,
+
+
+});
+
+
+
+/*
+const supportSchema = new Schema({
+    report_id: Number,
+    timestamp: {type: Date},
+    sender: Number,
+    type: String,
+
+    source_player: Number,
+    target_player: Number,
+    source_village: Number,
+    target_village: Number,
+
+    troops: {
+        support: [Number],
+    }
+});
+
+
+const attackSchema = new Schema({
+    report_id: Number,
+    type: String,
+    timestamp: {type: Date},
+
+    source_player_id: Number,
+    target_player_id: Number,
+    
+    source_village_id: Number,
+    target_village_id: Number,
+    
+    troops: {
+        attacker: [Number],
+        attacker_lost: [Number],
+        defender: [Number],
+        defender_lost: [Number],
+        outside: [Number],
+    },
+
+    buildings: {
+        main: Number,
+        barracks: Number,
+        stable: Number,
+        garage: Number,
+        watchtower: Number,
+        snob: Number,
+        smith: Number,
+        place: Number,
+        market: Number,
+        wood: Number,
+        stone: Number,
+        iron: Number,
+        farm: Number,
+        storage: Number,
+        hide: Number,
+        wall: Number,
+    },
+
+    loyality: Number,
+    luck: Number,
+
+
+});
+
+
+
+
+
+
+
 const villageSchema = new Schema({
     villageId: Number,
     building_timestamp: {type: Date},
@@ -26,74 +169,64 @@ const villageSchema = new Schema({
     village_type_timestamp: {type: Date},
     village_type: String
 });
+*/
 
-exports.update_data = (id, raw) => {
-    const db = new mongoose.model('de178', villageSchema);
+async function _reportExists(id){
+    const db = new mongoose.model("reports", reportSchema);
 
-    // Check if there is already an entry for the village
-    db.findOne({villageId: id}).then((result) => {
-        
-        var data = {
-            villageId: id,
-        };
+    var report = await db.findOne({report_id: id});
+    return report;
+}
 
-        if(result == undefined) {
+exports.reportExists = (id) => {
+    return _reportExists(id);
 
-            // Whole array
-            for (i in raw){
-                for (t in raw[i]) {
-                    data[t] = raw[i][t];
-                }
-            }
+}
 
-            // Create new entry
-            this.insert(data);
+exports.reportSave = (data) => {
+    const db = new mongoose.model("reports", reportSchema);
+    db.create(data);
+    console.log("REPORT " + data.report_id +" saved");
+    return true;
+}
+
+exports.setBuildings = (data) => {
+    const db = new mongoose.model("buildings", buildingsSchema);
+
+    db.findOne({target_village: data.target_village}).then(entry => {
+        data.timestamp = new Date(data.timestamp) * 1000;
+
+        if (entry == null) {
+            db.create(data);
         } else {
-            
-            for (i in raw){
 
-                if (result[ Object.keys(raw[i])[0] ] < raw[i][Object.keys(raw[i])[0]] ||  result[ Object.keys(raw[i])[0] ] == undefined ) {
-                    for (t in raw[i]) {
-                        data[t] = raw[i][t];
-                    }
-                }
+            // check timestamp
+            if (entry.timestamp < data.timestamp){
+                db.update({target_village: data.target_village}, data)
             }
-            
-            db.updateOne({villageId: id}, { $set: data}).then((res) => {console.log(res)});
         }
     });
+}
+
+
+exports.getBuildings = (id) => {
+    const db = new mongoose.model("buildings", buildingsSchema);
+    return db.findOne({target_village: id});
 }
 
 
 
 
 
-exports.insert = (data) => {
-    const model = mongoose.model('de178', villageSchema);
-    model.create(data);
-};
-
-exports.removeById = (villageId) => {
-    const model = mongoose.model('de178', villageSchema);
-
-    return new Promise((resolve, reject) => {
-        model.deleteMany({villageId: villageId}, (err) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(err);
-            }
-        });
-    });
-};
 
 
+/*
 
 
-exports.findById = (id) => {
+exports.findByVillageId = (id) => {
     const model = mongoose.model('de178', villageSchema);
 
-    return model.findOne({"villageId": id})
+    return model.findOne({source_village: id})
         .then((result) => {
             return result;
         });
@@ -102,8 +235,10 @@ exports.findById = (id) => {
 exports.findManyById = (ids) => {
     const model = mongoose.model('de178', villageSchema);
 
-    return model.find({villageId: { "$in" : ids}})
+    return model.find({source_village: { "$in" : ids}})
         .then((result) => {
             return result;
         });
 }
+
+*/
