@@ -458,7 +458,7 @@ async function createSourceHeatmap(mode, player){
         "groups": [
             {
                 "color" : "rgba(255, 0, 0, 0.7)",
-                "allys" : [
+                "allies" : [
                     "4", //TSP
                     "733", //CODE
                     "617", //BB
@@ -467,7 +467,7 @@ async function createSourceHeatmap(mode, player){
             },
             {
                 "color" : "rgba(46, 158, 255, 0.7)",
-                "allys" : [
+                "allies" : [
                     "643", //ALARM
                     "152", //RALU
                     "882", //PURA
