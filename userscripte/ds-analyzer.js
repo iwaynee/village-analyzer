@@ -21,8 +21,8 @@ var win = typeof unsafeWindow != 'undefined' ? unsafeWindow : window;
 var api = typeof unsafeWindow != 'undefined' ? unsafeWindow.ScriptAPI : window.ScriptAPI;
 var game_data = typeof unsafeWindow != 'undefined' ? unsafeWindow.game_data : window.game_data;
 
-//var host = "http://dsmap.kloud.software:3600";
-var host = "http://localhost:3600";
+var host = "http://dsmap.kloud.software:3600";
+//var host = "http://localhost:3600";
 
 
 /* UTIL FUNCTIONS */
@@ -326,14 +326,13 @@ function script_report(){
                                                     incomingDateRAW_h[1], 
                                                     incomingDateRAW_h[2]).getTime()/1000); 
 
-        // Players
+        // Source
         report_data["source_player"] = getId("id", document.querySelectorAll(".overlay-item a:not(.ctx)")[0].href);
-        report_data["target_player"] = getId("id", document.querySelectorAll(".overlay-item a:not(.ctx)")[2].href);
-
-        // Villages
         report_data["source_village"] = getId("id", document.querySelectorAll(".overlay-item a:not(.ctx)")[1].href);
+        
+        report_data["target_player"] = getId("id", document.querySelectorAll(".overlay-item a:not(.ctx)")[2].href);
         report_data["target_village"] = getId("id", document.querySelectorAll(".overlay-item a:not(.ctx)")[3].href);
-
+        
         // Get troops
         report_data["troops"] = {};
         report_data["troops"]["support"] = [
@@ -368,12 +367,18 @@ function script_report(){
 
         // Players
         report_data["source_player"] = getId("id", document.querySelectorAll("#attack_info_att tr a")[0].href);
-        report_data["target_player"] = getId("id", document.querySelectorAll("#attack_info_def tr a")[0].href);
-
-        // Villages
         report_data["source_village"] = getId("id", document.querySelectorAll("#attack_info_att tr a")[1].href);
-        report_data["target_village"] = getId("id", document.querySelectorAll("#attack_info_def tr a")[1].href);
 
+
+        if (document.querySelectorAll("#attack_info_def tr a:not(.ctx)").length < 11){
+            report_data["target_player"] = null;
+            report_data["target_village"] = getId("id", document.querySelectorAll("#attack_info_def tr a")[0].href);    
+        } else {
+            report_data["target_player"] = getId("id", document.querySelectorAll("#attack_info_def tr a")[0].href);
+            report_data["target_village"] = getId("id", document.querySelectorAll("#attack_info_def tr a")[1].href);
+        }
+
+        
         // TODO: Add luck
 
         // Troops
@@ -532,6 +537,8 @@ function script_report(){
             return false;
         }   
     }
+  
+  	console.log(report_data);
     createRequest("POST", host + "/new_report", report_data);
 }
 
