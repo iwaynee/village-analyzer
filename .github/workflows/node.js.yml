@@ -42,10 +42,9 @@ jobs:
     steps:
     - name: Deploy node app
       working-directory: ./server
-
-      uses: appleboy/ssh-action@master
-      with: 
+      uses: actions/setup-node@v1
+      env:
         dsanalyzertoken: ${{ secrets.DS_ANALYZER_TOKEN }}
-        script: pm2 restart index.js --name "village-analyzer" --node-args="--experimental-worker"  
+      run: pm2 restart index.js --name "village-analyzer" --node-args="--experimental-worker"
     
 
