@@ -42,8 +42,8 @@ jobs:
     steps:
     - name: Deploy node app
       working-directory: ./server
+      run: pm2 restart index.js --name "village-analyzer" --node-args="--experimental-worker"
       env:
         dsanalyzertoken: ${{ secrets.DS_ANALYZER_TOKEN }}
-      run: pm2 restart index.js --name "village-analyzer" --node-args="--experimental-worker"
     
 
