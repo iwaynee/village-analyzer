@@ -41,8 +41,9 @@ jobs:
 
     steps:
     - name: Deploy node app
-      uses: actions/setup-node@v1
       working-directory: ./server
+
+      uses: appleboy/ssh-action@master
       with: 
         dsanalyzertoken: ${{ secrets.DS_ANALYZER_TOKEN }}
         script: pm2 restart index.js --name "village-analyzer" --node-args="--experimental-worker"  
