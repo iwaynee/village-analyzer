@@ -21,7 +21,8 @@ async function fetchCommands() {
 
     var response = await fetch(dsAnalyzerURL, {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json'},
+        headers: { 'Content-Type': 'application/json',
+                   'Authorization': process.env.dsanalyzertoken},
         mode: 'cors',
         redirect: 'follow'
     });

@@ -34,3 +34,17 @@ jobs:
         npm run build --if-present
         npm i node-pre-gyp
         npm install canvas
+  
+  deploy:
+    needs: [build]
+    runs-on: self-hosted
+
+    steps:
+    - name: Deploy node app
+      uses: actions/setup-node@v1
+      working-directory: ./server
+      with: 
+        dsanalyzertoken: ${{ secrets.DS_ANALYZER_TOKEN }}
+        script: pm2 restart index.js --name "village-analyzer" --node-args="--experimental-worker"  
+    
+
