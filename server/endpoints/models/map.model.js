@@ -371,8 +371,14 @@ async function createStandartHeatmap(mode, player){
                     "31" // TWIX
                 ]
             },
-        ],
-        "heat": points,
+        ]
+    }
+
+
+    
+
+    if (points.length > 0) {
+        data['heat'] = points;
     }
 
     // Mark player
@@ -476,8 +482,11 @@ async function createSourceHeatmap(mode, player){
                     "31" // TWIX
                 ]
             },
-        ],
-        "heat": points,
+        ]
+    }
+
+    if (points.length > 0) {
+        data['heat'] = points;
     }
 
     // Mark player
